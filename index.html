@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>ফ্যামিলি কার্ড – সরকারি আবেদন</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Arial Unicode MS', Arial, sans-serif;
+    }
+
+    body {
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    /* মূল কার্ড */
+    .app-card {
+      max-width: 560px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 28px 28px 20px 20px;
+      box-shadow: 0 25px 40px -12px rgba(0, 60, 40, 0.35);
+      overflow: hidden;
+      transition: 0.25s;
+    }
+
+    /* হেডার – সরকারি সবুজ + সোনালি */
+    .header {
+      background: linear-gradient(165deg, #004d40 0%, #00695c 100%);
+      padding: 24px 20px 20px 20px;
+      text-align: center;
+      color: white;
+      border-bottom: 5px solid #ffb74d;
+    }
+
+    .header .gov-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      background: rgba(255, 255, 255, 0.13);
+      display: inline-block;
+      padding: 5px 18px;
+      border-radius: 40px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    .header h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+      text-shadow: 2px 2px 0 #003d33;
+    }
+
+    .header .sub {
+      font-size: 1.05rem;
+      margin-top: 10px;
+      opacity: 0.95;
+      background: #ffb74d;
+      color: #004d40;
+      display: inline-block;
+      padding: 6px 22px;
+      border-radius: 60px;
+      font-weight: 700;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* ফর্ম বডি */
+    .form-body {
+      padding: 22px 24px 16px 24px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1e3b4c;
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    label i {
+      color: #b13e2d;
+      font-style: normal;
+      margin-left: 2px;
+      font-size: 0.8rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      background-color: #fafdff;
+      transition: 0.2s;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #00695c;
+      box-shadow: 0 0 0 3px rgba(0,105,92,0.2);
+      background-color: #ffffff;
+    }
+
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    /* সাবমিট বাটন */
+    .submit-btn {
+      background: #b13e2d; /* লালচে-বাদামি */
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 16px 18px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 40px;
+      margin: 28px 0 12px 0;
+      box-shadow: 0 10px 18px -6px #9b2e1d;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+      border-bottom: 3px solid #7b2417;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: #9b2e1d;
+      transform: scale(1.01);
+      box-shadow: 0 14px 20px -6px #7b2417;
+    }
+
+    .submit-btn:disabled {
+      background: #a7a7a7;
+      border-bottom-color: #6d6d6d;
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* ===== নতুন লোডিং অ্যানিমেশন (তিনটি ডট ওয়েভ) ===== */
+    .loading-wrapper {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0 10px 0;
+    }
+
+    .loading-dot {
+      width: 16px;
+      height: 16px;
+      background-color: #00695c;
+      border-radius: 50%;
+      animation: pulse-wave 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) {
+      animation-delay: -0.32s;
+      background-color: #ffb74d;
+    }
+    .loading-dot:nth-child(2) {
+      animation-delay: -0.16s;
+      background-color: #00695c;
+    }
+    .loading-dot:nth-child(3) {
+      background-color: #b13e2d;
+    }
+
+    @keyframes pulse-wave {
+      0%, 80%, 100% { 
+        transform: scale(0.6);
+        opacity: 0.6;
+      }
+      40% { 
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+    /* ===== শেষ নতুন লোডিং ===== */
+
+    /* ফুটার – ছোট ফন্ট, সুন্দর */
+    footer {
+      background: #eef5f9;
+      padding: 16px 14px 12px 14px;
+      text-align: center;
+      border-top: 1px solid #bcd0db;
+      font-size: 0.7rem;
+      color: #2b4d5e;
+      line-height: 1.5;
+    }
+
+    footer p {
+      font-weight: 500;
+    }
+
+    footer .small-note {
+      font-size: 0.65rem;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    /* মডাল পপ-আপ – বড়, সুন্দর, কাস্টম */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 30, 20, 0.6);
+      backdrop-filter: blur(3px);
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      max-width: 420px;
+      width: 100%;
+      border-radius: 40px;
+      box-shadow: 0 40px 50px -15px #00251a;
+      text-align: center;
+      padding: 32px 24px 28px 24px;
+      border: 2px solid #ffb74d;
+      animation: popIn 0.3s ease-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-card .emoji-big {
+      font-size: 5rem;
+      line-height: 1;
+      margin-bottom: 8px;
+      filter: drop-shadow(2px 8px 10px rgba(0,0,0,0.1));
+    }
+
+    .modal-card h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1d3b2f;
+      margin-bottom: 20px;
+      word-break: break-word;
+    }
+
+    .modal-card p {
+      font-size: 1.2rem;
+      color: #b13e2d;
+      background: #ffefea;
+      padding: 18px 10px;
+      border-radius: 50px;
+      font-weight: 600;
+      margin: 15px 0 25px 0;
+      border: 1px dashed #b13e2d;
+    }
+
+    .modal-btn {
+      background: #00695c;
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 60px;
+      cursor: pointer;
+      border-bottom: 3px solid #004d40;
+      transition: 0.1s;
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+    }
+
+    .modal-btn:hover {
+      background: #004d40;
+    }
+
+    /* মোবাইল রেস্পন্সিভ */
+    @media (max-width: 480px) {
+      .header .gov-name { font-size: 0.9rem; }
+      .header h2 { font-size: 1.5rem; }
+      .header .sub { font-size: 0.9rem; }
+      .form-body { padding: 18px 16px; }
+      label { font-size: 0.8rem; }
+      input, textarea { font-size: 0.9rem; }
+      .submit-btn { font-size: 1.1rem; padding: 14px; }
+      .modal-card { padding: 24px 16px; }
+      .modal-card h3 { font-size: 1.8rem; }
+    }
+
+    /* খুব ছোট পর্দা */
+    @media (max-width: 360px) {
+      .header h2 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-card">
+  <!-- উপরের হেডার -->
+  <div class="header">
+    <div class="gov-name">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</div>
+    <h2>ফ্যামিলি কার্ড</h2>
+    <div class="sub">আবেদন ফর্ম</div>
+  </div>
+
+  <!-- ফর্ম অংশ -->
+  <div class="form-body">
+    <form id="familyForm">
+      <div class="field">
+        <label>নাম <i>(বাংলায়)</i></label>
+        <input type="text" id="name" placeholder="আপনার পূর্ণ নাম" required>
+      </div>
+      <div class="field">
+        <label>ঠিকানা</label>
+        <input type="text" id="address" placeholder="গ্রাম/শহর, থানা, জেলা" required>
+      </div>
+      <div class="field">
+        <label>NID নম্বর</label>
+        <input type="text" id="nid" placeholder=" এনআইডি নাম্বার লিখুন" inputmode="numeric" required>
+      </div>
+      <div class="field">
+        <label>বিস্তারিত কারণ</label>
+        <textarea id="details" placeholder="কেন ফ্যামিলি কার্ড চান? (ঐচ্ছিক)"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">সাবমিট করুন</button>
+    </form>
+
+    <!-- নতুন লোডিং অ্যানিমেশন (তিন ডট ওয়েভ) -->
+    <div class="loading-wrapper" id="loadingAnimation">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+  </div>
+
+  <!-- ফুটার (ছোট ফন্ট, সুন্দর) -->
+  <footer>
+    <p>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার • পরিবার ও জনসংখ্যা অধিদপ্তর</p>
+    <p class="small-note">ই-ফ্যামিলি কার্ড সেবা | অনলাইন আবেদন | সর্বসাধারণের জন্য উন্মুক্ত</p>
+    <p class="small-note" style="margin-top:6px;"></p>
+  </footer>
+</div>
+
+<!-- কাস্টম মডাল পপ-আপ (বড় ও সুন্দর) -->
+<div class="modal-overlay" id="popupModal">
+  <div class="modal-card">
+    <div class="emoji-big">🖕</div>
+    <h3>ফ্যামিলি কার্ড</h3>
+    <p>তোর পুটকিতে ঢুকে দেব<br>মাদারবোর্ড 🖕</p>
+    <button class="modal-btn" id="closeModalBtn">আবার পুটকি মারা দিতে আবেদন করুন😬</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const form = document.getElementById('familyForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingAnim = document.getElementById('loadingAnimation'); // নতুন এলিমেন্ট
+    const modal = document.getElementById('popupModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // ফর্ম সাবমিট হ্যান্ডলার
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // বেসিক ভ্যালিডেশন
+      const name = document.getElementById('name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const nid = document.getElementById('nid').value.trim();
+
+      if (!name || !address || !nid) {
+        alert('নাম, ঠিকানা ও NID নম্বর আবশ্যক।');
+        return;
+      }
+
+      // বাটন নিষ্ক্রিয় + নতুন লোডিং অ্যানিমেশন দেখাও
+      submitBtn.disabled = true;
+      loadingAnim.style.display = 'flex';   // ফ্লেক্স করে সেন্টার
+
+      // ২ সেকেন্ড পর লোডিং বন্ধ + মডাল খোলো
+      setTimeout(function() {
+        loadingAnim.style.display = 'none';
+        modal.style.display = 'flex';        // মডাল ওভারলে দেখাও
+
+        // বাটন পুনরায় সক্রিয় (মডাল বন্ধ করার পরে আবার ব্যবহার করা যাবে)
+        submitBtn.disabled = false;
+      }, 2000);
+    });
+
+    // মডাল বন্ধ করার ব্যবস্থা
+    closeModalBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+
+    // মডালের ওভারলে ক্লিক করলেও বন্ধ
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // পৃষ্ঠা লোডে মডাল ও নতুন লোডিং লুকানো
+    modal.style.display = 'none';
+    loadingAnim.style.display = 'none';
+  })();
+</script>
+
+</body>
+</html>
